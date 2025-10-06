@@ -1,1 +1,1 @@
-# Num-Sim-Projekt-Reccepest
+# NumSim-Projekt-Reccepest (NSPR)
