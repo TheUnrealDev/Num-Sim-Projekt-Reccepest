@@ -8,20 +8,36 @@ N = 1000
 beta = 0.3
 gamma = 1/7
 
+sus0 = N - INITIAL_SUS
+inf0 = INITIAL_SUS
+rec0 = 0
+
+x0 = [sus0, inf0, rec0]
+t_span = [0, 120]
+coeff = []
+
+# Retunerar stokiometritabell där rad representerar "händelser" och kolumn representerar "komponenter"
+
+def stoch():
+    return np.array([
+    [-1, +1, 0],    # Inf
+    [0, -1, +1]     # Rec
+])
 
 # HELA DEN HÄR FILEN ÄR GALEN WORK IN PROGRESS
 # (YOINK)
 def prop(y, coeff):
     sus, inf, res = y
     
-    new_sus = -1 * beta * (inf / N) * sus
-    new_inf = beta * (inf / N) * sus - gamma * inf
+    new_inf = beta * sus * inf / N
     new_res = gamma * inf
     
-    return [new_sus, new_inf, new_res]
+    return np.array([new_inf, new_res])
 
-stoch = []
-x0 = []
-t_span = [0, 120]
-coeff = []
+
 sol_x, sol_y = SSA(prop, stoch, x0, t_span, coeff)
+
+plt.plot(sol_x, sol_y[0])
+plt.plot(sol_x, sol_y[1])
+plt.plot(sol_x, sol_y[2])
+plt.show()

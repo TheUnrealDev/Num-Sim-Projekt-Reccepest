@@ -4,7 +4,7 @@
 # stoch - Stoichiometry matrix (2D numpy-array)
 # X0 - initial state (list, tuplet or numpy-array)
 # tspan - simulation time interval
-# coeff - model parameters
+# coeff - model parameters HALLÅ BIG BREAKTHROUGH!!! KAN DET HÄR VARA ARR MED BETA, GAMMA, ETC??????????
 #==================================
 import numpy as np
 import random
