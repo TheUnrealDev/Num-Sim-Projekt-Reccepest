@@ -8,40 +8,42 @@ from os import system
 
 INITIAL_SUS = 5
 N = 1000
+alpha = 1/10
 beta = 0.3
 gamma = 1/7
 
 sus0 = N - INITIAL_SUS
+exp0 = 0
 inf0 = INITIAL_SUS
 rec0 = 0
 
-x0 = [sus0, inf0, rec0]
+x0 = [sus0, exp0, inf0, rec0]
 t_span = [0, 120]
-coeff = [beta, gamma]
+coeff = [alpha, beta, gamma]
 
 num_samples = 100
 t_eval = np.arange(t_span[0], t_span[1], 1)
-samples = np.zeros([len(t_eval), 3])
+samples = np.zeros([len(t_eval), 4])
 sol_x = []
 
 # Returnerar stokiometritabell där rad representerar "händelser" och kolumn representerar "komponenter"
 
 def stoch():
     return np.array([
-    [-1, 1, 0],    # Inf
-    [0, -1, 1]     # Rec
+    [-1, 1, 0, 0], # Exp
+    [0, -1, 1, 0], # Inf
+    [0, 0, -1, 1], # Rec
 ])
 
-# HELA DEN HÄR FILEN ÄR GALEN WORK IN PROGRESS
-# (YOINK)
 def prop(y, coeff):
-    sus, inf, res = y
-    beta, gamma = coeff
+    sus, exp, inf, res = y
+    alpha, beta, gamma = coeff
     
-    new_inf = beta * sus * inf / N
-    new_res = gamma * inf
+    prob_exp = beta * sus * inf / N
+    prob_inf = alpha * exp
+    prob_res = gamma * inf
     
-    return np.array([new_inf, new_res])
+    return np.array([prob_exp, prob_inf, prob_res])
 
 prev_percentage = -1
 start_time = time()
@@ -52,17 +54,18 @@ for i in range(num_samples):
         prev_percentage = percentage
         system("cls")
         print(f"Percentage completed: {percentage}%")
-        
 
     sol_x, sol_y = SSA(prop, stoch, x0.copy(), t_span, coeff.copy())
 
     S = np.interp(t_eval, sol_x, sol_y[:, 0])
-    I = np.interp(t_eval, sol_x, sol_y[:, 1])
-    R = np.interp(t_eval, sol_x, sol_y[:, 2])
+    E = np.interp(t_eval, sol_x, sol_y[:, 1])
+    I = np.interp(t_eval, sol_x, sol_y[:, 2])
+    R = np.interp(t_eval, sol_x, sol_y[:, 3])
 
     samples[:, 0] += S
-    samples[:, 1] += I
-    samples[:, 2] += R
+    samples[:, 1] += E
+    samples[:, 2] += I
+    samples[:, 3] += R
 
 end_time = time()
 print(f"Duration: {math.floor((end_time - start_time)*100) / 100} s")
@@ -70,10 +73,12 @@ print("Uhm the calculation is finished 🤓☝️")
 
 samples /= num_samples
 
-plt.plot(t_eval, samples[:, 0], label="S")
-plt.plot(t_eval, samples[:, 1], label="I")
-plt.plot(t_eval, samples[:, 2], label="R")
+plt.plot(t_eval, samples[:, 0], label="S", color="yellow")
+plt.plot(t_eval, samples[:, 1], label="E", color="orange")
+plt.plot(t_eval, samples[:, 2], label="I", color = "red")
+plt.plot(t_eval, samples[:, 3], label="R", color = "lightgreen")
 
+plt.legend()
 plt.show()
 
 
