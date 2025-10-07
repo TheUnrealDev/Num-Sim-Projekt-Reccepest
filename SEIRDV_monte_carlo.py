@@ -6,8 +6,6 @@ import math
 from os import system
 
 # Returnerar stokiometritabell där rad representerar "händelser" och kolumn representerar "komponenter"
-
-
 def stoch(): #TODO
     return np.array([
         [-1, 1, 0, 0, 0, 0],  # Exp
@@ -32,7 +30,7 @@ def prop(y, coeff):
 
 def mc_simulate(values, should_print=False):
     N = values["N"]
-    initial_sus = values["initial_sus"]
+    initial_inf = values["initial_inf"]
     alpha = values["alpha"]  # Inkubationstid
     beta = values["beta"]  # Antalet exponerade per tidsenhet
     gamma = values["gamma"]  # Andelen sjuka som tillfrisknar per tidsenhet
@@ -43,9 +41,9 @@ def mc_simulate(values, should_print=False):
     time_step = values["time_step"]
     t_eval = np.arange(t_span[0], t_span[1], time_step)
 
-    sus0 = N - initial_sus
+    sus0 = N - initial_inf
     exp0 = 0
-    inf0 = initial_sus
+    inf0 = initial_inf
     res0 = 0
     ded0 = 0
     vac0 = 0

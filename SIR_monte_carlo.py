@@ -6,24 +6,7 @@ from time import time
 import math
 from os import system
 
-INITIAL_SUS = 5
-N = 1000
-beta = 0.3
-gamma = 1/7
-
-sus0 = N - INITIAL_SUS
-inf0 = INITIAL_SUS
-rec0 = 0
-
-x0 = [sus0, inf0, rec0]
-t_span = [0, 120]
-coeff = [beta, gamma]
-
-num_samples = 100
-t_eval = np.arange(t_span[0], t_span[1], 1)
-samples = np.zeros([len(t_eval), 3])
 # Returnerar stokiometritabell där rad representerar "händelser" och kolumn representerar "komponenter"
-
 def stoch():
     return np.array([
     [-1, 1, 0],    # Inf
@@ -32,7 +15,7 @@ def stoch():
 
 def prop(y, coeff):
     sus, inf, res = y
-    beta, gamma = coeff
+    beta, gamma, N = coeff
     
     prob_inf = beta * sus * inf / N
     prob_res = gamma * inf
@@ -42,35 +25,50 @@ def prop(y, coeff):
 prev_percentage = -1
 start_time = time()
 
-for i in range(num_samples):
-    percentage = math.floor((i / num_samples) * 100) + 1
-    if percentage > prev_percentage:
-        prev_percentage = percentage
-        system("cls")
-        print(f"Percentage completed: {percentage}%")
-        
+def mc_simulate(values, should_print=False):
+    N = values["N"]
+    initial_inf = values["initial_inf"]
+    beta = values["beta"]  # Antalet exponerade per tidsenhet
+    gamma = values["gamma"]  # Andelen sjuka som tillfrisknar per tidsenhet
+    num_samples = values["num_samples"]
+    t_span = values["t_span"]
+    time_step = values["time_step"]
+    t_eval = np.arange(t_span[0], t_span[1], time_step)
 
-    sol_x, sol_y = SSA(prop, stoch, x0.copy(), t_span, coeff.copy())
+    sus0 = N - initial_inf
+    inf0 = initial_inf
+    res0 = 0
 
-    S = np.interp(t_eval, sol_x, sol_y[:, 0])
-    I = np.interp(t_eval, sol_x, sol_y[:, 1])
-    R = np.interp(t_eval, sol_x, sol_y[:, 2])
+    coeff = [beta, gamma, N] # VARIERAR FRÅN FIL TILL FIL
+    x0 = [sus0, inf0, res0]
 
-    samples[:, 0] += S
-    samples[:, 1] += I
-    samples[:, 2] += R
+    samples = np.zeros([len(t_eval), len(x0)])
+    prev_percentage = -1
+    start_time = time()
 
-end_time = time()
-print(f"Duration: {math.floor((end_time - start_time)*100) / 100} s")
-print("Uhm the calculation is finished 🤓☝️")
+    for i in range(num_samples):
+        percentage = math.floor((i / num_samples) * 100) + 1
+        if should_print and percentage > prev_percentage:
+            prev_percentage = percentage
+            system("cls")
+            print(f"Percentage completed: {percentage}%")
 
-samples /= num_samples
+        sol_x, sol_y = SSA(prop, stoch, x0.copy(), t_span, coeff.copy())
 
-plt.plot(t_eval, samples[:, 0], label="S", color="yellow")
-plt.plot(t_eval, samples[:, 1], label="I", color = "red")
-plt.plot(t_eval, samples[:, 2], label="R", color = "lightgreen")
+        S = np.interp(t_eval, sol_x, sol_y[:, 0])
+        I = np.interp(t_eval, sol_x, sol_y[:, 1])
+        R = np.interp(t_eval, sol_x, sol_y[:, 2])
 
-plt.legend()
-plt.show()
+        samples[:, 0] += S
+        samples[:, 1] += I
+        samples[:, 2] += R  
 
+    end_time = time()
+    if should_print:
+        print(f"Duration: {math.floor((end_time - start_time)*100) / 100} s")
+        print("Uhm the calculation is finished 🤓☝️")
+
+    samples /= num_samples
+
+    return samples
 
