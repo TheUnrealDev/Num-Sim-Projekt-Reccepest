@@ -24,7 +24,6 @@ coeff = [alpha, beta, gamma]
 num_samples = 100
 t_eval = np.arange(t_span[0], t_span[1], 1)
 samples = np.zeros([len(t_eval), 4])
-sol_x = []
 
 # Returnerar stokiometritabell där rad representerar "händelser" och kolumn representerar "komponenter"
 
