@@ -9,7 +9,7 @@ gamma = 1/7
 
 t_span = [0, 120]
 t_eval = np.arange(t_span[0], t_span[1], 0.01)
-print(t_eval)
+
 y0 = [N - INITIAL_INF, INITIAL_INF, 0]
 
 def ODE_rhs(t, y):

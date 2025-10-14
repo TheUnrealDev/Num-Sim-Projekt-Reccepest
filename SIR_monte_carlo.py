@@ -26,6 +26,7 @@ prev_percentage = -1
 start_time = time()
 
 def mc_simulate(values, should_print=False):
+    # Plockar ur de värden som behövs från values dictionary:t.
     N = values["N"]
     initial_inf = values["initial_inf"]
     beta = values["beta"]  # Antalet exponerade per tidsenhet
@@ -39,7 +40,7 @@ def mc_simulate(values, should_print=False):
     inf0 = initial_inf
     res0 = 0
 
-    coeff = [beta, gamma, N] # VARIERAR FRÅN FIL TILL FIL
+    coeff = [beta, gamma, N]
     x0 = [sus0, inf0, res0]
 
     samples = np.zeros([len(t_eval), len(x0)])
@@ -53,8 +54,10 @@ def mc_simulate(values, should_print=False):
             system("cls")
             print(f"Percentage completed: {percentage}%")
 
+        # Kör gillespies algoritm
         sol_x, sol_y = SSA(prop, stoch, x0.copy(), t_span, coeff.copy())
 
+        # Interpolerar lösningarna för att ge lösningarna för de värden i t_eval.
         S = np.interp(t_eval, sol_x, sol_y[:, 0])
         I = np.interp(t_eval, sol_x, sol_y[:, 1])
         R = np.interp(t_eval, sol_x, sol_y[:, 2])
@@ -66,7 +69,6 @@ def mc_simulate(values, should_print=False):
     end_time = time()
     if should_print:
         print(f"Duration: {math.floor((end_time - start_time)*100) / 100} s")
-        print("Uhm the calculation is finished 🤓☝️")
 
     samples /= num_samples
 

@@ -8,19 +8,21 @@ import SEIRDV_monte_carlo as seirdv
 from os import system
 from time import time
 
-num_samples = 10
-INITIAL_INF = 5
+num_samples = 10 # Antalet körningar som körs med varje metod.
+INITIAL_INF = 5 # Det initiala antalet infekterade.
 N = 1000  # Populationsstorlek
-t_span = [0, 250] # Simuleringslängd i dagar
+t_span = [0, 250] # Simuleringslängd
 t_eval = np.arange(t_span[0], t_span[1], 1) # Tidssteg
 
 alpha = 1/10  # Inkubationstid
-beta = 0.3  # Antalet exponerade per tidsenhet
-gamma = 1/7  # Andelen sjuka som tillfrisknar per tidsenhet
-my = 0.01  # Död per tidsenhet
+beta = 0.3 # Smittspridningstakt
+gamma = 1/7  # Tillfriskningstakt
+my = 0.01  # Dödstakt
 nu = 0.3  # Vaccinationstakt
 
-values = {}
+values = {} # Initialiserar en dictionary som innehåller alla värden, 
+# denna skickas senare till varje metod så att alla använder samma värden.
+
 values["alpha"] = alpha
 values["beta"] = beta
 values["gamma"] = gamma
@@ -35,6 +37,7 @@ values["time_step"] = 1
 
 start_time = time()
 
+# Kör Monte Carlo simulering för respektive modeller.
 sir_samples = sir.mc_simulate(values, should_print=True)
 print("SIR Complete!")
 seir_samples = seir.mc_simulate(values, should_print=True)
@@ -46,6 +49,7 @@ print("SEIRDV Complete!")
 
 duration = time() - start_time
 
+# Plottar resultaten
 fig, ax = plt.subplots(2, 2)
 fig.suptitle("Epidemimodellering")
 
@@ -87,7 +91,6 @@ fig.supxlabel(f"α={alpha} β={beta} γ={math.floor(gamma * 100) / 100} μ={my} 
 system("cls")
 print(f"Percentage completed: 100%")
 print(f"Duration: {(math.floor(duration)*100) / 100} s")
-print("Uhm... mister?? The... the.. the calculation is finished 🤓☝️")
 
 plt.show()
 
